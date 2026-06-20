@@ -35,5 +35,8 @@ type SentPacketHandler interface {
 	GetLossDetectionTimeout() monotime.Time
 	OnLossDetectionTimeout(now monotime.Time) error
 
+	// ResetPTO clears PTO backoff state and schedules PTO handling to run immediately.
+	ResetPTO(now monotime.Time)
+
 	MigratedPath(now monotime.Time, initialMaxPacketSize protocol.ByteCount)
 }

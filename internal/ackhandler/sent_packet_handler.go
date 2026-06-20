@@ -944,6 +944,13 @@ func (h *sentPacketHandler) OnLossDetectionTimeout(now monotime.Time) error {
 	return nil
 }
 
+func (h *sentPacketHandler) ResetPTO(now monotime.Time) {
+	h.ptoCount = 0
+	if !h.alarm.Time.IsZero() {
+		h.alarm.Time = now
+	}
+}
+
 func (h *sentPacketHandler) GetLossDetectionTimeout() monotime.Time {
 	return h.alarm.Time
 }

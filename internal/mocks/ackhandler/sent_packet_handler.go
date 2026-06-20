@@ -199,6 +199,10 @@ func (m *MockSentPacketHandler) OnLossDetectionTimeout(now monotime.Time) error 
 	return ret0
 }
 
+// ResetPTO mocks base method.
+func (m *MockSentPacketHandler) ResetPTO(now monotime.Time) {
+}
+
 // OnLossDetectionTimeout indicates an expected call of OnLossDetectionTimeout.
 func (mr *MockSentPacketHandlerMockRecorder) OnLossDetectionTimeout(now any) *MockSentPacketHandlerOnLossDetectionTimeoutCall {
 	mr.mock.ctrl.T.Helper()

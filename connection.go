@@ -223,6 +223,10 @@ type Conn struct {
 	connStateMutex sync.Mutex
 	connState      ConnectionState
 
+	// ptoResetRequested requests that PTO be reset to its initial state
+	// and re-evaluated immediately by the connection loop.
+	ptoResetRequested atomic.Bool
+
 	logID     string
 	qlogTrace qlogwriter.Trace
 	qlogger   qlogwriter.Recorder
@@ -676,6 +680,9 @@ runLoop:
 		// Check for loss detection timeout.
 		// This could cause packets to be declared lost, and retransmissions to be enqueued.
 		now := monotime.Now()
+		if c.ptoResetRequested.CompareAndSwap(true, false) {
+			c.sentPacketHandler.ResetPTO(now)
+		}
 		if timeout := c.sentPacketHandler.GetLossDetectionTimeout(); !timeout.IsZero() && !timeout.After(now) {
 			if err := c.sentPacketHandler.OnLossDetectionTimeout(now); err != nil {
 				c.setCloseError(&closeError{err: err})
@@ -3139,6 +3146,18 @@ func (c *Conn) NextConnection(ctx context.Context) (*Conn, error) {
 		c.streamsMap.UseResetMaps()
 	}
 	return c, nil
+}
+
+// ResetPTO resets the PTO backoff state and causes PTO handling
+// to be re-evaluated immediately.
+//
+// This can be useful when an application has external knowledge
+// that connectivity may have been restored (for example after a
+// VPN reconnect or network-path change) and wants QUIC to resume
+// probing without waiting for the current PTO backoff interval.
+func (c *Conn) ResetPTO() {
+	c.ptoResetRequested.Store(true)
+	c.scheduleSending()
 }
 
 // estimateMaxPayloadSize estimates the maximum payload size for short header packets.
