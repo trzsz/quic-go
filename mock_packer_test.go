@@ -12,10 +12,10 @@ package quic
 import (
 	reflect "reflect"
 
-	ackhandler "github.com/quic-go/quic-go/internal/ackhandler"
-	monotime "github.com/quic-go/quic-go/internal/monotime"
-	protocol "github.com/quic-go/quic-go/internal/protocol"
-	qerr "github.com/quic-go/quic-go/internal/qerr"
+	ackhandler "github.com/trzsz/quic-go/internal/ackhandler"
+	monotime "github.com/trzsz/quic-go/internal/monotime"
+	protocol "github.com/trzsz/quic-go/internal/protocol"
+	qerr "github.com/trzsz/quic-go/internal/qerr"
 	gomock "go.uber.org/mock/gomock"
 )
 

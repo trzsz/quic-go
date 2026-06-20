@@ -13,7 +13,7 @@ import (
 	net "net"
 	reflect "reflect"
 
-	protocol "github.com/quic-go/quic-go/internal/protocol"
+	protocol "github.com/trzsz/quic-go/internal/protocol"
 	gomock "go.uber.org/mock/gomock"
 )
 
