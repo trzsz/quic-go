@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/trzsz/quic-go/internal/ackhandler"
-	"github.com/trzsz/quic-go/internal/flowcontrol"
 	"github.com/trzsz/quic-go/internal/monotime"
 	"github.com/trzsz/quic-go/internal/protocol"
 	"github.com/trzsz/quic-go/internal/utils/ringbuffer"
@@ -40,11 +39,11 @@ type framer struct {
 	controlFrameMutex          sync.Mutex
 	controlFrames              []wire.Frame
 	pathResponses              []*wire.PathResponseFrame
-	connFlowController         flowcontrol.ConnectionFlowController
+	connFlowController         *connectionFlowController
 	queuedTooManyControlFrames bool
 }
 
-func newFramer(connFlowController flowcontrol.ConnectionFlowController) *framer {
+func newFramer(connFlowController *connectionFlowController) *framer {
 	return &framer{
 		activeStreams:            make(map[protocol.StreamID]streamFrameGetter),
 		streamsWithControlFrames: make(map[protocol.StreamID]streamControlFrameGetter),
@@ -280,6 +279,7 @@ func (f *framer) Handle0RTTRejection() {
 	for id := range f.activeStreams {
 		delete(f.activeStreams, id)
 	}
+	clear(f.streamsWithControlFrames)
 	var j int
 	for i, frame := range f.controlFrames {
 		switch frame.(type) {
